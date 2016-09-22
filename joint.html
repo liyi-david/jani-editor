@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="./css/joint.css" />
+    <script src="./js/jquery.js"></script>
+    <script src="./js/lodash.js"></script>
+    <script src="./js/backbone.js"></script>        
+    <script src="./js/joint.js"></script>
+    <script src="./js/joint.jani.js"></script>
+  </head>
+  <body>
+    <script>
+      function add_state(graph, label, position, invariant) {
+        var cell = new joint.shapes.jani.State({
+          position: position || { x: 0, y: 0 }
+        });
+        graph.addCell(cell);
+        return cell;
+      }
+      
+      function add_link(graph, source, target, label, type) {
+        var link = new joint.shapes.jani.ActEdge({
+          source: { id: source.id },
+          target: { id: target.id },
+          labels: [{ position: .5, attrs: { text: { text: label, 'font-weight': 'bold' } } }],
+          vertices: []
+        });
+        graph.addCell(link);
+        return link;
+      }
+      
+      function add_trans(graph, source, action, targets, dist) {
+        // TODO position of the action?
+        // TODO verify the consistence between targets <-> dist
+        // TODO add listeners so the position of links will change with the corresponding states
+        actpos = source.attributes.position;
+        actpos.x += source.attributes.size.width / 2;
+        actpos.y += source.attributes.size.height / 2;
+        for (var i = 0; i < targets.length; i ++) {
+          actpos.x += targets[i].attributes.position.x + targets[i].attributes.size.width / 2;
+          actpos.y += targets[i].attributes.position.y + targets[i].attributes.size.height / 2;
+        }
+        actpos.x /= targets.length + 1;
+        actpos.y /= targets.length + 1;       
+        
+        // create the action node
+        var actcell = new joint.shapes.jani.Action({ position: actpos });
+        graph.addCell(actcell);
+        
+        // create the previous link
+        add_link(graph, source, actcell, action);
+        for (var i = 0; i < targets.length; i ++) {
+          add_link(graph, actcell, targets[i], dist[i]);
+        }        
+      }
+    </script>
+    <script>
+      var graph = new joint.dia.Graph;
+
+      var paper = new joint.dia.Paper({
+          el: $('body'),
+          width: 800,
+          height: 600,
+          gridSize: 1,
+          model: graph
+      });
+
+      
+      var state1 = add_state(graph, 'lbl1', {x: 100, y: 100});
+      var state2 = add_state(graph, 'lbl2', {x: 300, y: 100});      
+      var state3 = add_state(graph, 'lbl3', {x: 200, y: 200});
+      
+      add_trans(graph, state1, 'a', [state2, state3], [0.3, 0.7]);
+      
+      /*
+      var action = new joint.shapes.jani.Action({ position: { x: 100, y: 10 } });
+      graph.addCell(action);
+      
+      
+      var link = new joint.shapes.jani.ActEdge({
+          source: { id: state1.id },
+          target: { id: action.id },
+          labels: [{ position: .5, attrs: { text: { text: 'wtf', 'font-weight': 'bold' } } }],
+          vertices: []
+      });
+      graph.addCell(link);
+      */
+    </script>
+  </body>
+</html>

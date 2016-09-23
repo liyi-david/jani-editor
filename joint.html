@@ -70,7 +70,8 @@
       var state2 = add_state(graph, 'lbl2', {x: 300, y: 100});      
       var state3 = add_state(graph, 'lbl3', {x: 200, y: 200});
       
-      add_trans(graph, state1, 'a', [state2, state3], [0.3, 0.7]);
+      add_trans(graph, state1, 'a', [state1, state2, state3], [0.1, 0.2, 0.7]);
+      add_trans(graph, state2, 'b', [state3], [1]);
       
       /*
       var action = new joint.shapes.jani.Action({ position: { x: 100, y: 10 } });
